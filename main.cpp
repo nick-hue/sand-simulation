@@ -1,9 +1,24 @@
 
 #include "raylib.h"
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
+#define CELL_SIZE 20
+
+void draw_grid()
+{
+    int screenWidth = GetScreenWidth();
+    int screenHeight = GetScreenHeight();
+
+    for (int x = 0; x < screenWidth; x += CELL_SIZE)
+    {
+        DrawLine(x, 0, x, screenHeight, DARKGRAY);
+    }
+
+    for (int y = 0; y < screenHeight; y += CELL_SIZE)
+    {
+        DrawLine(0, y, screenWidth, y, DARKGRAY);
+    }
+}
+
 int main(void)
 {
     // Initialization
@@ -27,7 +42,9 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(BLACK);
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+
+            draw_grid();
+            
 
         EndDrawing();
         //----------------------------------------------------------------------------------
