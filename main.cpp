@@ -2,15 +2,21 @@
 #include "raylib.h"
 #include <iostream>
 #include <cstdlib>
+#include <string> 
 
-#define CELL_SIZE 15
+#define CELL_SIZE 10
 #define CELL_COLOR DARKGRAY
 #define LINE_COLOR WHITE
 
+
+
 #define SCREEN_WIDTH 450
-#define SCREEN_HEIGHT 900
+#define SCREEN_HEIGHT 600
 #define GRID_WIDTH SCREEN_WIDTH / CELL_SIZE
 #define GRID_HEIGHT SCREEN_HEIGHT / CELL_SIZE
+
+#define TOP_BAR_WIDTH SCREEN_WIDTH
+#define TOP_BAR_HEIGHT 100
 
 int grid_filled[GRID_WIDTH][GRID_HEIGHT] = {0};
 
@@ -54,10 +60,7 @@ void DrawGrid()
 
 void DrawSelection(){
     Vector2 mouse_pos = GetMousePosition();
-    if ((mouse_pos.x < 0 || mouse_pos.x > SCREEN_WIDTH) || (mouse_pos.y < 0 || mouse_pos.y > SCREEN_HEIGHT)){
-        printf("Clicking out of bounds...\n");
-        return;
-    }
+    
     // printf("x: %f - y: %f\n", mouse_pos.x, mouse_pos.y);
 
     int cell_x = mouse_pos.x / CELL_SIZE;
@@ -70,6 +73,10 @@ void DrawSelection(){
 
     // Store clicked cell
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+        if ((mouse_pos.x < 0 || mouse_pos.x > SCREEN_WIDTH) || (mouse_pos.y < 0 || mouse_pos.y > SCREEN_HEIGHT)){
+            printf("Clicking out of bounds...\n");
+            return;
+        }
         printf("Placed on cell %d-%d\n", cell_x, cell_y);
         grid_filled[cell_x][cell_y] = 1;
     }
@@ -108,10 +115,12 @@ int main(void)
     printf("GRID WIDTH : %d\n", GRID_WIDTH);
     printf("GRID HEIGHT : %d\n", GRID_HEIGHT);
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sand Simulation");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT+TOP_BAR_HEIGHT, "Sand Simulation");
     SetWindowPosition(400, 100);
     
-    SetTargetFPS(30);               
+    int frameCounter = 60;
+    char buff[100]; 
+    SetTargetFPS(frameCounter);               
     
     while (!WindowShouldClose())
     {
@@ -120,10 +129,24 @@ int main(void)
         ClearBackground(BLACK);
         DrawGrid();
         DrawSelection();
-            
+
+        snprintf(buff, sizeof(buff), "Frame count: %d", frameCounter);
+        DrawText(buff, 10, SCREEN_HEIGHT+10, 12, WHITE);
+
+       
+
         EndDrawing();
 
-        MoveSand();        
+        MoveSand();   
+        if (IsKeyDown(KEY_UP)){
+            frameCounter++;
+            SetTargetFPS(frameCounter);               
+
+        }
+        if (IsKeyDown(KEY_DOWN)){
+            frameCounter--;
+            SetTargetFPS(frameCounter);               
+        }     
     }
 
     // De-Initialization
