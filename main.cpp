@@ -133,8 +133,6 @@ int main(void)
         snprintf(buff, sizeof(buff), "Frame count: %d (change with up/down arrows)", frameCounter);
         DrawText(buff, 10, SCREEN_HEIGHT+10, 12, WHITE);
 
-       
-
         EndDrawing();
 
         MoveSand();   
