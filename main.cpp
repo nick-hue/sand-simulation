@@ -1,6 +1,7 @@
 
 #include "raylib.h"
 #include <iostream>
+#include <cstdlib>
 
 #define CELL_SIZE 15
 #define CELL_COLOR DARKGRAY
@@ -62,18 +63,42 @@ void DrawSelection(){
     int cell_x = mouse_pos.x / CELL_SIZE;
     int cell_y = mouse_pos.y / CELL_SIZE;
 
-    printf("CELL = %d - %d\n", cell_x, cell_y);
+    // printf("CELL = %d - %d\n", cell_x, cell_y);
     
     // Show currently selected cell
     FillCell(cell_x, cell_y, WHITE);
 
     // Store clicked cell
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+        printf("Placed on cell %d-%d\n", cell_x, cell_y);
         grid_filled[cell_x][cell_y] = 1;
     }
 
     // printf("CELL x: %f - CELL y: %f\n", cell.x, cell.y);
 
+}
+
+void MoveSand() {
+    // Iterate from bottom to top to avoid moving the same sand multiple times
+    for (int y = GRID_HEIGHT - 2; y >= 0; y--) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            if (grid_filled[x][y] == 1) {
+                // Try to move down
+                if (grid_filled[x][y + 1] == 0) {
+                    grid_filled[x][y + 1] = 1;
+                    grid_filled[x][y] = 0;
+                }
+                else if (grid_filled[x - 1][y + 1] == 0) {
+                    grid_filled[x - 1][y + 1] = 1;
+                    grid_filled[x][y] = 0;
+                }
+                else if (grid_filled[x + 1][y + 1] == 0) {
+                    grid_filled[x + 1][y + 1] = 1;
+                    grid_filled[x][y] = 0;
+                }
+            }
+        }
+    }
 }
 
 // Copilot: Enable in Command Palette.
@@ -85,18 +110,20 @@ int main(void)
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Sand Simulation");
     SetWindowPosition(400, 100);
-
-    SetTargetFPS(60);               
+    
+    SetTargetFPS(30);               
     
     while (!WindowShouldClose())
     {
+
         BeginDrawing();
         ClearBackground(BLACK);
         DrawGrid();
         DrawSelection();
             
         EndDrawing();
-        //----------------------------------------------------------------------------------
+
+        MoveSand();        
     }
 
     // De-Initialization
