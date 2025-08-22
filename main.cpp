@@ -3,10 +3,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <string> 
+#include <vector>
 using namespace std;
 
-
-#define CELL_SIZE 10
+#define CELL_SIZE 5
 #define CELL_COLOR DARKGRAY
 #define LINE_COLOR WHITE
 
@@ -23,7 +23,7 @@ static const Color WET_SAND  = {150, 125,  85, 255};
 static const Color ASH       = { 70,  70,  70, 255};
 static const Color GLASS     = {190, 230, 230, 200};
 
-Color COLORS[] = {DRY_SAND, WET_SAND, ASH, GLASS};
+std::vector<Color> COLORS{DRY_SAND, WET_SAND, ASH, GLASS};
 
 class Cell {       
     public:
@@ -39,16 +39,13 @@ class Cell {
         }
 };
 
-int grid_filled[GRID_WIDTH][GRID_HEIGHT] = {0};
 Cell grid[GRID_WIDTH][GRID_HEIGHT];
+bool showGrid = true;
 
-void InitializeGrid(){
-    for (int r = 0; r < GRID_WIDTH; r++){
-        for (int c = 0; c < GRID_WIDTH; c++){
-            Vector2 vec;
-            vec.x = r;
-            vec.y = c;
-            grid[r][c] = Cell(vec, BLUE);
+void InitializeGrid() {
+    for (int r = 0; r < GRID_WIDTH; r++) {
+        for (int c = 0; c < GRID_HEIGHT; c++) {
+            grid[r][c] = Cell({(float)r, (float)c}, COLORS[rand() % 4]);
         }
     }
 }
@@ -74,10 +71,10 @@ void DrawFilledCells(){
         for (int y = 0; y < GRID_HEIGHT; y++){
             if (grid[x][y].filled){
                 FillCell(x, y, grid[x][y].color);
-                printf("%d, %d filled\n", x, y);
+                // printf("%d, %d filled\n", x, y);
             } else {
                 FillCell(x, y, BLACK);
-                printf("%d, %d not filled\n", x, y);
+                // printf("%d, %d not filled\n", x, y);
             }          
         }
     }
@@ -88,7 +85,7 @@ void DrawGrid()
     // Draw filled cells
     DrawFilledCells();
     // Draw grid outline
-    DrawGridOutline();
+    if (showGrid) DrawGridOutline();
 }
 
 void DrawSelection(){
@@ -110,9 +107,9 @@ void DrawSelection(){
             printf("Clicking out of bounds...\n");
             return;
         }
-        printf("Placed on cell %d-%d\n", cell_x, cell_y);
+        // printf("Placed on cell %d-%d\n", cell_x, cell_y);
         grid[cell_x][cell_y].filled = true;
-        cout << "x: " << cell_x << "y: " << cell_y << " is filled : " << grid[cell_x][cell_y].filled << endl;
+        // cout << "x: " << cell_x << "y: " << cell_y << " is filled : " << grid[cell_x][cell_y].filled << endl;
     }
 }
 
@@ -124,14 +121,18 @@ void MoveSand() {
                 // Try to move down
                 if (!grid[x][y + 1].filled) {
                     grid[x][y + 1].filled = true;
+                    grid[x][y + 1].color = grid[x][y].color;
+
                     grid[x][y].filled = false;
                 }
                 else if (x > 0 && !grid[x - 1][y + 1].filled) {
                     grid[x - 1][y + 1].filled = true;
+                    grid[x - 1][y + 1].color = grid[x][y].color;
                     grid[x][y].filled = false;
                 }
                 else if (x < GRID_WIDTH - 1 && !grid[x + 1][y + 1].filled) {
                     grid[x + 1][y + 1].filled = true;
+                    grid[x + 1][y + 1].color = grid[x][y].color;
                     grid[x][y].filled = false;
                 }
             }
@@ -140,6 +141,7 @@ void MoveSand() {
 }
 
 // Copilot: Enable in Command Palette.
+// Color{ 0, 121, 241, 255 }
 
 int main(void)
 {
@@ -151,11 +153,17 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT+TOP_BAR_HEIGHT, "Sand Simulation");
     SetWindowPosition(400, 100);
     
-    int frameCounter = 30;
+    int frameCounter = 60;
     char buff[100]; 
-    SetTargetFPS(frameCounter);      
     Color sandColor;         
     int i = 0;
+    cout << boolalpha; 
+    
+    
+    InitializeGrid();
+    srand(time(NULL));
+    SetTargetFPS(frameCounter);      
+
     while (!WindowShouldClose())
     {
 
@@ -170,7 +178,7 @@ int main(void)
         sandColor.a = 255;
         i++;
 
-        snprintf(buff, sizeof(buff), "Frame count: %d (change with up/down arrows)", frameCounter);
+        snprintf(buff, sizeof(buff), "Frame count: %d (change with up/down arrows)\nShow grid: (%s) (change with 'g')", frameCounter, showGrid ? "on" : "off");
         DrawText(buff, 10, SCREEN_HEIGHT+10, 12, WHITE);
 
         EndDrawing();
@@ -184,10 +192,14 @@ int main(void)
         if (IsKeyDown(KEY_DOWN)){
             frameCounter--;
             SetTargetFPS(frameCounter);               
-        }     
+        }   
+        if (IsKeyPressed(KEY_G)){
+            showGrid = !showGrid;
+        }   
+          
 
-        cout << boolalpha; 
         // printf("GRID: %.f-%.f is filled: ", grid[0][0].pos.x, grid[0][0].pos.y);
+        // printf("GRID: %d-%d-%d\n", grid[0][0].color.r, grid[0][0].color.g, grid[0][0].color.b);
         // cout << "flag1: " << grid[0][0].filled << endl;
     }
 
