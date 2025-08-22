@@ -6,7 +6,7 @@
 using namespace std;
 
 
-#define CELL_SIZE 5
+#define CELL_SIZE 10
 #define CELL_COLOR DARKGRAY
 #define LINE_COLOR WHITE
 
@@ -48,7 +48,7 @@ void InitializeGrid(){
             Vector2 vec;
             vec.x = r;
             vec.y = c;
-            grid[r][c] = Cell(vec, BLACK);
+            grid[r][c] = Cell(vec, BLUE);
         }
     }
 }
@@ -72,11 +72,13 @@ void DrawFilledCells(){
     
     for (int x = 0; x < GRID_WIDTH; x++){
         for (int y = 0; y < GRID_HEIGHT; y++){
-            if (grid_filled[x][y] == 0){
-                FillCell(x, y, BLACK);
+            if (grid[x][y].filled){
+                FillCell(x, y, grid[x][y].color);
+                printf("%d, %d filled\n", x, y);
             } else {
-                FillCell(x, y, WHITE);
-            }
+                FillCell(x, y, BLACK);
+                printf("%d, %d not filled\n", x, y);
+            }          
         }
     }
 }
@@ -109,31 +111,28 @@ void DrawSelection(){
             return;
         }
         printf("Placed on cell %d-%d\n", cell_x, cell_y);
-        grid_filled[cell_x][cell_y] = 1;
-        // sand_grid[cell_x][cell_y] = Sand(cell_x, cell_y, );
+        grid[cell_x][cell_y].filled = true;
+        cout << "x: " << cell_x << "y: " << cell_y << " is filled : " << grid[cell_x][cell_y].filled << endl;
     }
-
-    // printf("CELL x: %f - CELL y: %f\n", cell.x, cell.y);
-
 }
 
 void MoveSand() {
     // Iterate from bottom to top to avoid moving the same sand multiple times
     for (int y = GRID_HEIGHT - 2; y >= 0; y--) {
         for (int x = 0; x < GRID_WIDTH; x++) {
-            if (grid_filled[x][y] == 1) {
+            if (grid[x][y].filled) {
                 // Try to move down
-                if (grid_filled[x][y + 1] == 0) {
-                    grid_filled[x][y + 1] = 1;
-                    grid_filled[x][y] = 0;
+                if (!grid[x][y + 1].filled) {
+                    grid[x][y + 1].filled = true;
+                    grid[x][y].filled = false;
                 }
-                else if (x > 0 && grid_filled[x - 1][y + 1] == 0) {
-                    grid_filled[x - 1][y + 1] = 1;
-                    grid_filled[x][y] = 0;
+                else if (x > 0 && !grid[x - 1][y + 1].filled) {
+                    grid[x - 1][y + 1].filled = true;
+                    grid[x][y].filled = false;
                 }
-                else if (x < GRID_WIDTH - 1 && grid_filled[x + 1][y + 1] == 0) {
-                    grid_filled[x + 1][y + 1] = 1;
-                    grid_filled[x][y] = 0;
+                else if (x < GRID_WIDTH - 1 && !grid[x + 1][y + 1].filled) {
+                    grid[x + 1][y + 1].filled = true;
+                    grid[x][y].filled = false;
                 }
             }
         }
@@ -152,7 +151,7 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT+TOP_BAR_HEIGHT, "Sand Simulation");
     SetWindowPosition(400, 100);
     
-    int frameCounter = 60;
+    int frameCounter = 30;
     char buff[100]; 
     SetTargetFPS(frameCounter);      
     Color sandColor;         
@@ -188,8 +187,8 @@ int main(void)
         }     
 
         cout << boolalpha; 
-        printf("GRID: %.f-%.f is filled: ", grid[0][0].pos.x, grid[0][0].pos.y);
-        cout << "flag1: " << grid[0][0].filled << endl;
+        // printf("GRID: %.f-%.f is filled: ", grid[0][0].pos.x, grid[0][0].pos.y);
+        // cout << "flag1: " << grid[0][0].filled << endl;
     }
 
 
