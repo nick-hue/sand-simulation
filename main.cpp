@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <string> 
+using namespace std;
+
 
 #define CELL_SIZE 5
 #define CELL_COLOR DARKGRAY
@@ -23,21 +25,33 @@ static const Color GLASS     = {190, 230, 230, 200};
 
 Color COLORS[] = {DRY_SAND, WET_SAND, ASH, GLASS};
 
-class Sand {       
-    private:          
-        int x;         
-        int y;        
-        Color color;  
+class Cell {       
     public:
-        Sand(int x_pos, int y_pos, Color c) { 
-            x = x_pos;
-            y = y_pos;
+        Vector2 pos;
+        Color color;  
+        bool filled;
+    
+        Cell() = default;
+        Cell(Vector2 v, Color c) { 
+            pos = v;
             color = c;
+            filled = false;
         }
 };
 
 int grid_filled[GRID_WIDTH][GRID_HEIGHT] = {0};
-Sand sand_grid[GRID_WIDTH][GRID_HEIGHT];
+Cell grid[GRID_WIDTH][GRID_HEIGHT];
+
+void InitializeGrid(){
+    for (int r = 0; r < GRID_WIDTH; r++){
+        for (int c = 0; c < GRID_WIDTH; c++){
+            Vector2 vec;
+            vec.x = r;
+            vec.y = c;
+            grid[r][c] = Cell(vec, BLACK);
+        }
+    }
+}
 
 void DrawGridOutline(){
     // horizontal
@@ -97,8 +111,6 @@ void DrawSelection(){
         printf("Placed on cell %d-%d\n", cell_x, cell_y);
         grid_filled[cell_x][cell_y] = 1;
         // sand_grid[cell_x][cell_y] = Sand(cell_x, cell_y, );
-
-
     }
 
     // printf("CELL x: %f - CELL y: %f\n", cell.x, cell.y);
@@ -174,7 +186,12 @@ int main(void)
             frameCounter--;
             SetTargetFPS(frameCounter);               
         }     
+
+        cout << boolalpha; 
+        printf("GRID: %.f-%.f is filled: ", grid[0][0].pos.x, grid[0][0].pos.y);
+        cout << "flag1: " << grid[0][0].filled << endl;
     }
+
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
